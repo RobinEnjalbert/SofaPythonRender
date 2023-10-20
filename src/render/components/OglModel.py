@@ -13,13 +13,14 @@ class OglModel(BaseComponent):
 
         # Access Data fields
         positions = self.sofa_object.position.value
-        triangles = self.sofa_object.triangles.value
+        triangles = list(self.sofa_object.triangles.value)
+        quads = list(self.sofa_object.quads.value)
         colors = self.sofa_object.material.value.split('Diffuse')[1].split('Ambient')[0].split(' ')[2:-1]
 
         # Create the Vedo Actor
-        self.vedo_actor = Mesh(inputobj=[positions, triangles],
+        self.vedo_actor = Mesh(inputobj=[positions, triangles + quads],
                                c=[float(c) for c in colors[:-1]],
-                               alpha=float(colors[-1]))
+                               alpha=max(0.1, float(colors[-1])))
 
     def update(self) -> None:
 

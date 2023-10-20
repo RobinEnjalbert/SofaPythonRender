@@ -28,6 +28,7 @@ class SceneFactory:
                     self.__models[component.category] = []
                 context = self.__graph.graph[f'{key.split("@")[0]}@']
                 self.__models[component.category].append(component(sofa_object=sofa_object, context=context))
+        print(self.__models)
 
     def get_models(self) -> List[BaseActor]:
 

@@ -2,10 +2,12 @@ import Sofa
 from SofaRender.render.vedo_player import VedoPlayer
 
 
-def run_sofa_with_vedo(root_node: Sofa.Core.Node):
+def run_sofa_with_vedo(root_node: Sofa.Core.Node,
+                       visual_models: bool = True,
+                       collision_models: bool = True,):
 
     Sofa.Simulation.init(root_node)
-    VedoPlayer(root_node).show(axes=4, title="SOFA with Vedo").close()
+    VedoPlayer(root_node, visual_models, collision_models).show(axes=4, title="SOFA with Vedo").close()
 
 
 def run_sofa_with_gui(root_node: Sofa.Core.Node):
