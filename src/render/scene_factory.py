@@ -1,30 +1,45 @@
-from typing import Dict, Tuple, List
+from typing import Dict, List
 import Sofa
-from vedo import Mesh
+from vedo import BaseActor
+
 from SofaRender.graph import SofaGraph
+from SofaRender.render.components import BaseComponent, COMPONENTS
 
 
 class SceneFactory:
 
     def __init__(self, root_node: Sofa.Core.Node):
 
-        self.graph = SofaGraph(root_node)
-        self.__mesh_factory: Dict[str, Tuple[Mesh, Sofa.Core.Object]] = {}
-        self.create_meshes()
+        self.__graph = SofaGraph(root_node)
+        self.display_models: Dict[str, bool] = {}
+        self.__models: Dict[str, List[BaseComponent]] = {}
 
-    def create_meshes(self):
+    def create_models(self, visual_models: bool = True, collision_models: bool = True):
 
-        for key, component in self.graph.graph.items():
-            # Key format : root.child1.child2.@.Component<name>
-            if key.split('@.')[1].split('<')[0] == 'OglModel':
-                mesh = Mesh([component.position.value, component.triangles.value])
-                colors = component.material.value.split('Diffuse')[1].split('Ambient')[0].split(' ')[2:-1]
-                mesh.color([float(c) for c in colors[:-1]]).alpha(float(colors[-1]))
-                self.__mesh_factory[key] = (mesh, component)
+        self.display_models = locals()
+        del self.display_models['self']
 
-    def get_meshes(self) -> List[Mesh]:
-        return [mesh[0] for mesh in self.__mesh_factory.values()]
+        for key, sofa_object in self.__graph.graph.items():
+            # Key format: root.child1.child2.@.Component<name>
+            component_name = key.split('@.')[1].split('<')[0]
+            if component_name in COMPONENTS:
+                component = COMPONENTS[component_name]
+                if component.category not in self.__models:
+                    self.__models[component.category] = []
+                context = self.__graph.graph[f'{key.split("@")[0]}@']
+                self.__models[component.category].append(component(sofa_object=sofa_object, context=context))
 
-    def update_meshes(self) -> None:
-        for mesh, ogl_model in self.__mesh_factory.values():
-            mesh.points(ogl_model.position.value)
+    def get_models(self) -> List[BaseActor]:
+
+        models = []
+        for model_name, model_list in self.__models.items():
+            if self.display_models[model_name]:
+                models += [model.vedo_actor for model in model_list]
+        return models
+
+    def update_models(self) -> None:
+
+        for model_name, model_list in self.__models.items():
+            if self.display_models[model_name]:
+                for model in model_list:
+                    model.update()
