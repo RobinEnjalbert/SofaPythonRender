@@ -1,10 +1,8 @@
 import Sofa
-from .vedo_player import VedoPlayer
+from SofaRender.render.vedo_player import VedoPlayer
 
 
 def run_sofa_with_vedo(root_node: Sofa.Core.Node):
-
-    from vedo import Plotter, Mesh
 
     Sofa.Simulation.init(root_node)
     VedoPlayer(root_node).show(axes=4, title="SOFA with Vedo").close()

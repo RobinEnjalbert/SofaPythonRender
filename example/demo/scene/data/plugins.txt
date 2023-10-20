@@ -9,9 +9,4 @@ Sofa.Component.Mass
 Sofa.GL.Component.Rendering3D
 Sofa.Component.MechanicalLoad
 Sofa.Component.Constraint.Projective
-
 Sofa.Component.Topology.Mapping
-
-
-
-

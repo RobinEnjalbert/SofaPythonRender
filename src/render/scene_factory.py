@@ -1,7 +1,7 @@
 from typing import Dict, Tuple, List
 import Sofa
-from vedo import Plotter, Mesh
-from .sofa_graph import SofaGraph
+from vedo import Mesh
+from SofaRender.graph import SofaGraph
 
 
 class SceneFactory:
@@ -28,6 +28,3 @@ class SceneFactory:
     def update_meshes(self) -> None:
         for mesh, ogl_model in self.__mesh_factory.values():
             mesh.points(ogl_model.position.value)
-
-
-

@@ -1,12 +1,12 @@
 import Sofa
-import os
+from os.path import join, dirname
 import numpy as np
 from vedo import Mesh
 
 
 def get_file(filename: str):
     data_dir = 'data'
-    return os.path.join(os.path.dirname(__file__), data_dir, *filename.split('/'))
+    return join(dirname(__file__), data_dir, *filename.split('/'))
 
 
 def get_plugin_list():

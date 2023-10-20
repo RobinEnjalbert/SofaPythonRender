@@ -1,14 +1,15 @@
 from os.path import join, dirname
 import Sofa
 from vedo import Plotter
-from .scene_factory import SceneFactory
+
+from SofaRender.render.scene_factory import SceneFactory
 
 
 class VedoPlayer(Plotter):
 
     def __init__(self, root_node: Sofa.Core.Node, **kwargs):
 
-        Plotter.__init__(self, bg=join(dirname(__file__), 'back.png'), interactive=True, **kwargs)
+        Plotter.__init__(self, bg=join(dirname(__file__), 'data', 'back.png'), interactive=True, **kwargs)
         self.render()
         self.background_renderer.GetActiveCamera().Zoom(2)
         self.root = root_node
