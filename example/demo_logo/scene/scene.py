@@ -3,6 +3,8 @@ from os.path import join, dirname
 import numpy as np
 from vedo import Mesh
 
+from SofaRender.utils.indices import vedo_to_sofa_indices
+
 
 def get_file(filename: str):
     data_dir = 'data'
@@ -21,11 +23,10 @@ def get_plugin_list():
 
 class Scene(Sofa.Core.Controller):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, root: Sofa.Core.Node, *args, **kwargs):
         Sofa.Core.Controller.__init__(self, name='Controller', *args, **kwargs)
 
-        self.root = Sofa.Core.Node('root')
-        self.root.addObject(self)
+        self.root = root
         self.create_graph()
         self.idx_step = 0
 
@@ -51,41 +52,18 @@ class Scene(Sofa.Core.Controller):
         self.root.logo.addObject('MechanicalObject', name='state', src='@topology')
         self.root.logo.addObject('TetrahedronFEMForceField', youngModulus=2000, poissonRatio=0.4, method='svd')
         self.root.logo.addObject('MeshMatrixMass', totalMass=0.01)
-        self.root.logo.addObject('FixedConstraint', name='constraints')
+        self.root.logo.addObject('FixedConstraint', name='constraints',
+                                 indices=vedo_to_sofa_indices(vedo_mesh=Mesh(get_file('volume.vtk')).rotate_x(90),
+                                                              sofa_mesh=self.root.logo.mesh,
+                                                              indices=np.load(get_file('constraints.npy'))))
 
         self.root.logo.addChild('forces')
         self.root.logo.forces.addObject('MechanicalObject', name='state', src='@../topology')
         self.root.logo.forces.addObject('IdentityMapping')
-
-        self.root.logo.addChild('collision')
-        self.root.logo.collision.addObject('TriangleSetTopologyContainer', name='topology')
-        self.root.logo.collision.addObject('TriangleSetTopologyModifier', name='Modifier')
-        self.root.logo.collision.addObject('Tetra2TriangleTopologicalMapping', input='@../topology', output='@topology')
-        self.root.logo.collision.addObject('MechanicalObject', name='state', rest_position="@../state.rest_position")
-        self.root.logo.collision.addObject('TriangleCollisionModel')
-        self.root.logo.collision.addObject('IdentityMapping')
-
-        self.root.logo.addChild('visual')
-        self.root.logo.visual.addObject('MeshOBJLoader', name='mesh', filename=get_file('surface.obj'), rotation=[90, 0, 0])
-        self.root.logo.visual.addObject('OglModel', name='ogl', color='0.85 .3 0.1 0.9', src='@mesh')
-        self.root.logo.visual.addObject('BarycentricMapping')
-
-    def onSimulationInitDoneEvent(self, _):
-
-        # Get the position of the constraint in Vedo since the indexing is different (SOFA = vtk file)
-        positions = Mesh(get_file('volume.vtk')).rotate_x(90).points()[np.load(get_file('constraints.npy'))]
-        sofa_pos = np.tile(self.root.logo.state.position.value, (positions.shape[0], 1)).reshape(positions.shape[0], -1,
-                                                                                                 3)
-        positions = np.tile(positions.reshape((-1, 1, 3)), (sofa_pos.shape[1], 1))
-        indices = np.argmin(np.linalg.norm(sofa_pos - positions, axis=-1), axis=1)
-        self.root.logo.constraints.indices.value = indices.tolist()
-
-        # Get the position of the forces in Vedo for the same reason
-        positions = Mesh(get_file('volume.vtk')).rotate_x(90).points()[np.load(get_file('forces.npy'))]
-        sofa_pos = np.tile(self.root.logo.state.position.value, (positions.shape[0], 1)).reshape(positions.shape[0], -1,
-                                                                                                 3)
-        positions = np.tile(positions.reshape((-1, 1, 3)), (sofa_pos.shape[1], 1))
-        indices = np.argmin(np.linalg.norm(sofa_pos - positions, axis=-1), axis=1)
+        # Get the position of the forces in Vedo since the indexing is different (SOFA = vtk file)
+        indices = vedo_to_sofa_indices(vedo_mesh=Mesh(get_file('volume.vtk')).rotate_x(90),
+                                       sofa_mesh=self.root.logo.mesh,
+                                       indices=np.load(get_file('forces.npy')))
         # Define regions
         n = {i: np.array([], dtype=int) for i in indices}
         for t in self.root.logo.topology.triangles.value:
@@ -109,13 +87,25 @@ class Scene(Sofa.Core.Controller):
         # Create ForceFields
         for i, cluster in enumerate(clusters):
             self.root.logo.forces.addObject('ConstantForceField', name=f'cff_{i}', indices=cluster.tolist(),
-                                            force=np.random.uniform(-1, 1, (3,)), showArrowSize=0.5)
-        Sofa.Simulation.init(self.root.logo.forces)
+                                            force=np.random.uniform(-1e-1, 1e-1, (3,)), showArrowSize=5)
 
-    def onAnimateEndEvent(self, _):
+        self.root.logo.addChild('collision')
+        self.root.logo.collision.addObject('TriangleSetTopologyContainer', name='topology')
+        self.root.logo.collision.addObject('TriangleSetTopologyModifier', name='Modifier')
+        self.root.logo.collision.addObject('Tetra2TriangleTopologicalMapping', input='@../topology', output='@topology')
+        self.root.logo.collision.addObject('MechanicalObject', name='state', rest_position="@../state.rest_position")
+        self.root.logo.collision.addObject('TriangleCollisionModel')
+        self.root.logo.collision.addObject('IdentityMapping')
 
-        if self.idx_step == 0:
-            for o in self.root.logo.forces.objects:
-                if o.name.value[:3] == 'cff':
-                    o.force.value = np.zeros((3,))
-        self.idx_step += 1
+        self.root.logo.addChild('visual')
+        self.root.logo.visual.addObject('MeshOBJLoader', name='mesh', filename=get_file('surface.obj'), rotation=[90, 0, 0])
+        self.root.logo.visual.addObject('OglModel', name='ogl', color='0.85 .3 0.1 0.9', src='@mesh')
+        self.root.logo.visual.addObject('BarycentricMapping')
+
+    # def onAnimateEndEvent(self, _):
+    #
+    #     if self.idx_step == 0:
+    #         for o in self.root.logo.forces.objects:
+    #             if o.name.value[:3] == 'cff':
+    #                 o.force.value = np.zeros((3,))
+    #     self.idx_step += 1

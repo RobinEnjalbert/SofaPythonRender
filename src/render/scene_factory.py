@@ -1,6 +1,6 @@
 from typing import Dict, List
 import Sofa
-from vedo import BaseActor
+from vedo import BaseActor, Plotter
 
 from SofaRender.graph import SofaGraph
 from SofaRender.render.components import BaseComponent, COMPONENTS
@@ -11,13 +11,13 @@ class SceneFactory:
     def __init__(self, root_node: Sofa.Core.Node):
 
         self.__graph = SofaGraph(root_node)
-        self.display_models: Dict[str, bool] = {}
+        self.display_models: Dict[str, bool] = {'visual_models': True,
+                                                'collision_models': False,
+                                                'behavior_models': False,
+                                                'force_fields': False}
         self.__models: Dict[str, List[BaseComponent]] = {}
 
-    def create_models(self, visual_models: bool = True, collision_models: bool = True):
-
-        self.display_models = locals()
-        del self.display_models['self']
+    def create_models(self):
 
         for key, sofa_object in self.__graph.graph.items():
             # Key format: root.child1.child2.@.Component<name>
@@ -28,7 +28,14 @@ class SceneFactory:
                     self.__models[component.category] = []
                 context = self.__graph.graph[f'{key.split("@")[0]}@']
                 self.__models[component.category].append(component(sofa_object=sofa_object, context=context))
-        print(self.__models)
+            elif component_name == 'VisualStyle':
+                flags = sofa_object.displayFlags.value.split(' ')
+                for flag in flags:
+                    display = flag[:4] == 'show'
+                    for model in self.display_models.keys():
+                        if model.split('_')[0] in flag[4:].lower():
+                            self.display_models[model] = display
+                            break
 
     def get_models(self) -> List[BaseActor]:
 
@@ -38,9 +45,9 @@ class SceneFactory:
                 models += [model.vedo_actor for model in model_list]
         return models
 
-    def update_models(self) -> None:
+    def update_models(self, plt: Plotter) -> None:
 
         for model_name, model_list in self.__models.items():
             if self.display_models[model_name]:
                 for model in model_list:
-                    model.update()
+                    model.update(plt=plt)

@@ -1,1 +1,1 @@
-from SofaRender.launchers import run_sofa_with_vedo, run_sofa_with_gui
+from SofaRender.vedo_player import VedoPlayer

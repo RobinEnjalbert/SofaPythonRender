@@ -1,7 +1,8 @@
 from typing import Dict
 import Sofa
-from SofaRender.render.components.Base import BaseComponent
-from vedo import Mesh
+from vedo import Mesh, Plotter
+
+from SofaRender.render.components.Base import BaseComponent, STYLES
 
 
 class TriangleCollisionModel(BaseComponent):
@@ -15,12 +16,14 @@ class TriangleCollisionModel(BaseComponent):
         self.attached_MO = context['MechanicalObject']
         positions = self.attached_MO.position.value
         triangles = self.sofa_object.topology.getLinkedBase().triangles.value
+        color = STYLES[self.category]['color']
+        alpha = STYLES[self.category]['alpha']
 
         # Create the Vedo Actor
         self.vedo_actor = Mesh(inputobj=[positions, triangles],
-                               c=[255, 130, 0]).wireframe(True).lw(2)
+                               c=color, alpha=alpha).wireframe(True).lw(2)
 
-    def update(self) -> None:
+    def update(self, plt: Plotter) -> None:
 
         # Access Data fields
         positions = self.attached_MO.position.value

@@ -19,11 +19,10 @@ def get_plugin_list():
 
 class Scene(Sofa.Core.Controller):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, root: Sofa.Core.Node, *args, **kwargs):
         Sofa.Core.Controller.__init__(self, name='Controller', *args, **kwargs)
 
-        self.root = Sofa.Core.Node('root')
-        self.root.addObject(self)
+        self.root = root
         self.create_graph()
         self.idx_step = 0
 
@@ -32,7 +31,7 @@ class Scene(Sofa.Core.Controller):
         self.root.dt.value = 0.04
         self.root.gravity.value = [0, -1000, 0]
         self.root.addObject('RequiredPlugin', pluginName=get_plugin_list())
-        self.root.addObject('VisualStyle', displayFlags='showVisualModels')
+        self.root.addObject('VisualStyle', displayFlags='hideVisualModels')
 
         self.root.addObject('FreeMotionAnimationLoop', parallelCollisionDetectionAndFreeMotion=True)
         self.root.addObject('DefaultPipeline', depth=15, verbose=0, draw=0)
@@ -77,7 +76,7 @@ class Scene(Sofa.Core.Controller):
         self.root.snake.visual.addChild('body')
         self.root.snake.visual.body.addObject('MeshOBJLoader', name='SnakeBody', filename=get_file('snake_body.obj'))
         self.root.snake.visual.body.addObject('OglModel', name='OglBody', src='@SnakeBody',
-                                              texturename='textures/snakeColorMap.png')
+                                              texturename=get_file('snakeColorMap.png'))
         self.root.snake.visual.body.addObject('BarycentricMapping', input='@../..', output='@.')
         self.root.snake.visual.addChild('eye')
         self.root.snake.visual.eye.addObject('MeshOBJLoader', name='SnakeEye', filename=get_file('snake_yellowEye.obj'))
