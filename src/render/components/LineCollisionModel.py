@@ -2,7 +2,8 @@ from typing import Dict
 import Sofa
 from vedo import Mesh, Plotter
 
-from SofaRender.render.components.Base import BaseComponent, STYLES
+from SofaRender.render.components.Base import BaseComponent
+from SofaRender.render.settings import STYLES
 
 
 class LineCollisionModel(BaseComponent):
@@ -20,8 +21,9 @@ class LineCollisionModel(BaseComponent):
         alpha = STYLES[self.category]['alpha']
 
         # Create the Vedo Actor
-        self.vedo_actor = Mesh(inputobj=[positions, edges],
-                               c=color, alpha=alpha).wireframe(True).lw(2)
+        self.vedo_object = Mesh(inputobj=[positions, edges],
+                                c=color,
+                                alpha=alpha).wireframe(True).lw(2)
 
     def update(self, plt: Plotter) -> None:
 
@@ -29,4 +31,4 @@ class LineCollisionModel(BaseComponent):
         positions = self.attached_MO.position.value
 
         # Update the Vedo Actor
-        self.vedo_actor.points(pts=positions)
+        self.vedo_object.vertices = positions

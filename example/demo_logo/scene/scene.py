@@ -1,7 +1,7 @@
 import Sofa
 from os.path import join, dirname
 import numpy as np
-from vedo import Mesh
+from vedo import TetMesh, Mesh
 
 from SofaRender.utils.indices import vedo_to_sofa_indices
 
@@ -52,42 +52,35 @@ class Scene(Sofa.Core.Controller):
         self.root.logo.addObject('MechanicalObject', name='state', src='@topology')
         self.root.logo.addObject('TetrahedronFEMForceField', youngModulus=2000, poissonRatio=0.4, method='svd')
         self.root.logo.addObject('MeshMatrixMass', totalMass=0.01)
-        self.root.logo.addObject('FixedConstraint', name='constraints',
-                                 indices=vedo_to_sofa_indices(vedo_mesh=Mesh(get_file('volume.vtk')).rotate_x(90),
-                                                              sofa_mesh=self.root.logo.mesh,
-                                                              indices=np.load(get_file('constraints.npy'))))
+        self.root.logo.addObject('FixedConstraint', name='constraints', indices=np.load(get_file('constraints.npy')))
 
         self.root.logo.addChild('forces')
         self.root.logo.forces.addObject('MechanicalObject', name='state', src='@../topology')
         self.root.logo.forces.addObject('IdentityMapping')
-        # Get the position of the forces in Vedo since the indexing is different (SOFA = vtk file)
-        indices = vedo_to_sofa_indices(vedo_mesh=Mesh(get_file('volume.vtk')).rotate_x(90),
-                                       sofa_mesh=self.root.logo.mesh,
-                                       indices=np.load(get_file('forces.npy')))
-        # Define regions
-        n = {i: np.array([], dtype=int) for i in indices}
-        for t in self.root.logo.topology.triangles.value:
-            for t_i in t:
-                if t_i in n:
-                    n[t_i] = np.unique(np.concatenate((n[t_i], t)))
-                    break
+
+        indices = np.load(get_file('forces.npy'))
+        n = {int(i): np.array([], dtype=int) for i in indices}
+        for i in n.keys():
+            idx = np.where(np.isin(self.root.logo.topology.triangles.value[:], i))[0]
+            n[i] = np.unique(np.concatenate(self.root.logo.topology.triangles.value[idx]))
         clusters = []
         for idx, nei in n.items():
             if len(clusters) == 0:
-                clusters.append(nei)
+                clusters.append([idx])
             else:
-                added = False
+                new_cluster = True
                 for i_c in range(len(clusters)):
                     if len(set(clusters[i_c]).intersection(set(nei))) > 0:
-                        clusters[i_c] = np.unique(np.concatenate((clusters[i_c], nei)))
-                        added = True
+                        clusters[i_c].append(idx)
+                        new_cluster = False
                         break
-                if not added:
-                    clusters.append(nei)
+                if new_cluster:
+                    clusters.append([idx])
+
         # Create ForceFields
         for i, cluster in enumerate(clusters):
-            self.root.logo.forces.addObject('ConstantForceField', name=f'cff_{i}', indices=cluster.tolist(),
-                                            force=np.random.uniform(-1e-1, 1e-1, (3,)), showArrowSize=5)
+            self.root.logo.forces.addObject('ConstantForceField', name=f'cff_{i}', indices=cluster,
+                                            force=np.random.choice([-0.5, 0.5], (3,)), showArrowSize=1)
 
         self.root.logo.addChild('collision')
         self.root.logo.collision.addObject('TriangleSetTopologyContainer', name='topology')

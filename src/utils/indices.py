@@ -11,15 +11,12 @@ def __convert_indices(src_pos: np.ndarray, dst_pos: np.ndarray, indices: np.ndar
 
 
 def vedo_to_sofa_indices(vedo_mesh: Mesh, sofa_mesh: Sofa.Core.Object, indices: np.ndarray):
-    return __convert_indices(src_pos=vedo_mesh.points(),
+    return __convert_indices(src_pos=vedo_mesh.vertices,
                              dst_pos=sofa_mesh.position.value,
                              indices=indices)
 
 
 def sofa_to_vedo_indices(sofa_mesh: Sofa.Core.Object, vedo_mesh: Mesh, indices: np.ndarray):
     return __convert_indices(src_pos=sofa_mesh.position.value,
-                             dst_pos=vedo_mesh.points(),
+                             dst_pos=vedo_mesh.vertices,
                              indices=indices)
-
-
-

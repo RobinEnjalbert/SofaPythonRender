@@ -2,7 +2,8 @@ from typing import Dict
 import Sofa
 from vedo import Glyph, Box, Plotter
 
-from SofaRender.render.components.Base import BaseComponent, STYLES
+from SofaRender.render.components.Base import BaseComponent
+from SofaRender.render.settings import STYLES
 
 
 class FixedConstraint(BaseComponent):
@@ -20,9 +21,10 @@ class FixedConstraint(BaseComponent):
         alpha = STYLES[self.category]['alpha']
 
         # Create the Vedo Actor
-        self.vedo_actor = Glyph(mesh=positions[indices],
-                                glyph=Box(size=[0.15]*3),
-                                alpha=alpha, c=color)
+        self.vedo_object = Glyph(mesh=positions[indices],
+                                 glyph=Box(size=[0.15]*3),
+                                 alpha=alpha,
+                                 c=color)
 
     def update(self, plt: Plotter) -> None:
         pass

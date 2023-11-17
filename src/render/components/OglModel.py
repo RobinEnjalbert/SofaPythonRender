@@ -3,6 +3,7 @@ import Sofa
 from vedo import Mesh, Plotter
 
 from SofaRender.render.components.Base import BaseComponent
+from SofaRender.render.settings import STYLES
 
 
 class OglModel(BaseComponent):
@@ -20,11 +21,11 @@ class OglModel(BaseComponent):
         texcoords = self.sofa_object.texcoords.value
 
         # Create the Vedo Actor
-        self.vedo_actor = Mesh(inputobj=[positions, triangles + quads],
-                               c=[float(c) for c in colors[:-1]],
-                               alpha=max(0.1, float(colors[-1])))
+        self.vedo_object = Mesh(inputobj=[positions, triangles + quads],
+                                c=[float(c) for c in colors[:-1]],
+                                alpha=max(0.1, float(colors[-1])))
         if texture != '':
-            self.vedo_actor.texture(texture, tcoords=texcoords)
+            self.vedo_object.texture(texture, tcoords=texcoords)
 
     def update(self, plt: Plotter) -> None:
 
@@ -32,4 +33,4 @@ class OglModel(BaseComponent):
         positions = self.sofa_object.position.value
 
         # Update the Vedo Actor
-        self.vedo_actor.points(pts=positions)
+        self.vedo_object.vertices = positions

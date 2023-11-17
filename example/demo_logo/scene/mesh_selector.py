@@ -2,7 +2,7 @@ from typing import Optional
 from os import listdir, remove
 from os.path import join, abspath, dirname, exists, sep
 from numpy import array, load, save
-from vedo import Plotter, Mesh, Points, Text2D
+from vedo import Plotter, Mesh, TetMesh, Points, Text2D
 from vedo.colors import get_color
 
 
@@ -22,14 +22,17 @@ class MeshSelector(Plotter):
         self.__selection_file = selection_file
 
         # Create the meshed PCD
-        self.msh = Mesh(self.__mesh_file)
-        self.msh.wireframe().lw(0.2).c('grey')
-        self.pts = Points(self.msh.points())
+        try:
+            self.msh = Mesh(self.__mesh_file)
+        except TypeError:
+            self.msh = TetMesh(self.__mesh_file)
+        self.msh.alpha(0.9).lw(1).c('grey')
+        self.pts = Points(self.msh.vertices)
         self.pts.force_opaque().point_size(15)
 
         # Default selection of the PCD
         color = array(list(get_color('lightgreen')) + [1.]) * 255
-        self.default_color = array([color for _ in range(self.pts.npoints)])
+        self.default_color = array([color for _ in range(self.pts.nvertices)])
         self.selection = [] if selection_file is None else load(self.__selection_file).tolist()
         self.indicator = Text2D('Nb selected points: 0', pos='bottom-left', s=0.7)
 
@@ -74,7 +77,7 @@ class MeshSelector(Plotter):
 
         # Get the file name
         if file is None and self.__selection_file is None:
-            filename = 'constraints.npy'
+            filename = 'selection.npy'
         elif file is None:
             filename = self.__selection_file.split(sep)[-1]
         else:
@@ -111,13 +114,13 @@ class MeshSelector(Plotter):
         id_cells = self.selection.copy()
         if self.id_cursor != -1 and color_cursor:
             id_cells += [self.id_cursor]
-        self.indicator.text(f'Nb selected cells: {len(self.selection)}')
+        self.indicator.text(f'Nb selected points: {len(self.selection)}')
 
         # RGBA color
         selection_color = list(get_color('tomato')) + [1.]
         mesh_color = self.default_color.copy()
         mesh_color[id_cells] = array(selection_color) * 255
-        self.pts.cellcolors = mesh_color
+        self.pts.pointcolors = mesh_color
         self.render()
 
     def __callback_key_press(self, event):
@@ -126,12 +129,12 @@ class MeshSelector(Plotter):
         """
 
         # If 'z' pressed, remove the last selected cell
-        if event.keyPressed == 'z' and len(self.selection) > 0:
+        if event.keypress == 'z' and len(self.selection) > 0:
             self.selection.pop()
             self.__update()
 
         # If 'c' pressed, clear the selection
-        elif event.keyPressed == 'c':
+        elif event.keypress == 'c':
             self.selection = []
             self.__update()
 

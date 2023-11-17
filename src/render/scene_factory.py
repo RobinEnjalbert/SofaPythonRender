@@ -1,6 +1,6 @@
 from typing import Dict, List
 import Sofa
-from vedo import BaseActor, Plotter
+from vedo import Points, Plotter
 
 from SofaRender.graph import SofaGraph
 from SofaRender.render.components import BaseComponent, COMPONENTS
@@ -37,12 +37,12 @@ class SceneFactory:
                             self.display_models[model] = display
                             break
 
-    def get_models(self) -> List[BaseActor]:
+    def get_models(self) -> List[Points]:
 
         models = []
         for model_name, model_list in self.__models.items():
             if self.display_models[model_name]:
-                models += [model.vedo_actor for model in model_list]
+                models += [model.vedo_object for model in model_list]
         return models
 
     def update_models(self, plt: Plotter) -> None:

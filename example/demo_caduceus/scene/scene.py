@@ -31,7 +31,7 @@ class Scene(Sofa.Core.Controller):
         self.root.dt.value = 0.04
         self.root.gravity.value = [0, -1000, 0]
         self.root.addObject('RequiredPlugin', pluginName=get_plugin_list())
-        self.root.addObject('VisualStyle', displayFlags='hideVisualModels')
+        self.root.addObject('VisualStyle', displayFlags='showVisualModels')
 
         self.root.addObject('FreeMotionAnimationLoop', parallelCollisionDetectionAndFreeMotion=True)
         self.root.addObject('DefaultPipeline', depth=15, verbose=0, draw=0)
