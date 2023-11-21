@@ -92,10 +92,6 @@ class Scene(Sofa.Core.Controller):
         self.root.logo.visual.addObject('OglModel', name='ogl', color='0.85 .3 0.1 0.9', src='@mesh')
         self.root.logo.visual.addObject('BarycentricMapping')
 
-    # def onAnimateEndEvent(self, _):
-    #
-    #     if self.idx_step == 0:
-    #         for o in self.root.logo.forces.objects:
-    #             if o.name.value[:3] == 'cff':
-    #                 o.force.value = np.zeros((3,))
-    #     self.idx_step += 1
+    def onAnimateEndEvent(self, _):
+
+        self.idx_step += 1

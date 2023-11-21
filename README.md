@@ -3,5 +3,6 @@
 
 ## TODO
 
-* AnimationPlayer
+* step by step
+* Time, FPS
 * Doc & comment ++
