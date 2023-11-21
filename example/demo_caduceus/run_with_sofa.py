@@ -4,9 +4,13 @@ import Sofa.Gui
 from scene import Scene
 
 
+def createScene(node):
+    node.addObject(Scene(root=node))
+
+
 if __name__ == '__main__':
     root = Sofa.Core.Node('root')
-    root.addObject(Scene(root=root))
+    createScene(node=root)
     Sofa.Simulation.init(root)
     Sofa.Gui.GUIManager.Init(program_name="main", gui_name="qglviewer")
     Sofa.Gui.GUIManager.createGUI(root, __file__)
