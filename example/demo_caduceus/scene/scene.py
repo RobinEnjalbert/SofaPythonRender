@@ -110,3 +110,7 @@ class Scene(Sofa.Core.Controller):
         self.root.base.addChild('visual')
         self.root.base.visual.addObject('MeshOBJLoader', name='Base', filename=get_file('SOFA_pod.obj'))
         self.root.base.visual.addObject('OglModel', name='OglBase', src='@Base')
+
+    def onAnimateEndEvent(self, _):
+
+        self.idx_step += 1

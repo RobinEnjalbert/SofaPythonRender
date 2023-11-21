@@ -1,9 +1,6 @@
 import Sofa
 from os.path import join, dirname
 import numpy as np
-from vedo import TetMesh, Mesh
-
-from SofaRender.utils.indices import vedo_to_sofa_indices
 
 
 def get_file(filename: str):
