@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 import Sofa
 from vedo import Points, Plotter
 
@@ -45,9 +45,9 @@ class SceneFactory:
                 models += [model.vedo_object for model in model_list]
         return models
 
-    def update_models(self, plt: Plotter) -> None:
+    def update_models(self, plt: Plotter, idx: Optional[int] = None) -> None:
 
         for model_name, model_list in self.__models.items():
             if self.display_models[model_name]:
                 for model in model_list:
-                    model.update(plt=plt)
+                    model.update(plt=plt, idx=idx)

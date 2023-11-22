@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 import Sofa
 from vedo import Mesh, Plotter
 
@@ -27,10 +27,14 @@ class OglModel(BaseComponent):
         if texture != '':
             self.vedo_object.texture(texture, tcoords=texcoords)
 
-    def update(self, plt: Plotter) -> None:
+    def update(self, plt: Plotter, idx: Optional[int] = None) -> None:
 
         # Access Data fields
-        positions = self.sofa_object.position.value
+        if idx is None:
+            positions = self.sofa_object.position.value
+            self.store(positions=positions.copy())
+        else:
+            positions = self.get_item(idx=idx)['positions']
 
         # Update the Vedo Actor
         self.vedo_object.vertices = positions

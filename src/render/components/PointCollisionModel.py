@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 import Sofa
 from vedo import Points, Plotter
 
@@ -25,10 +25,14 @@ class PointCollisionModel(BaseComponent):
                                   c=color,
                                   alpha=alpha)
 
-    def update(self, plt: Plotter) -> None:
+    def update(self, plt: Plotter, idx: Optional[int] = None) -> None:
 
         # Access Data fields
-        positions = self.attached_MO.position.value
+        if idx is None:
+            positions = self.attached_MO.position.value
+            self.store(positions=positions.copy())
+        else:
+            positions = self.get_item(idx=idx)['positions']
 
         # Update the Vedo Actor
         self.vedo_object.vertices = positions

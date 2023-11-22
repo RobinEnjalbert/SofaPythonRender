@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 import Sofa
 from vedo import Arrows, Plotter
 
@@ -27,15 +27,25 @@ class ConstantForceField(BaseComponent):
                                   c=color,
                                   alpha=alpha)
 
-    def update(self, plt: Plotter) -> None:
+    def update(self, plt: Plotter, idx: Optional[int] = None) -> None:
+
+        # Access Data fields
+        if idx is None:
+            positions = self.attached_MO.position.value[self.sofa_object.indices.value]
+            forces = self.sofa_object.forces.value
+            self.store(positions=positions, forces=forces)
+        else:
+            frame = self.get_item(idx=idx)
+            positions = frame['positions']
+            forces = frame['forces']
+
+        # Update the Vedo Actor
         plt.remove(self.vedo_object)
-        start_position = self.attached_MO.position.value[self.sofa_object.indices.value]
-        scale = self.sofa_object.showArrowSize.value
-        end_position = start_position + self.sofa_object.forces.value * scale
+        end_positions = positions + forces * self.sofa_object.showArrowSize.value
         color = STYLES[self.category]['color']
         alpha = STYLES[self.category]['alpha']
-        self.vedo_object = Arrows(start_pts=start_position,
-                                  end_pts=end_position,
+        self.vedo_object = Arrows(start_pts=positions,
+                                  end_pts=end_positions,
                                   c=color,
                                   alpha=alpha)
         plt.add(self.vedo_object)

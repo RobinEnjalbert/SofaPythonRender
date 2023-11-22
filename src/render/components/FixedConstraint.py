@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 import Sofa
 from vedo import Glyph, Box, Plotter
 
@@ -26,5 +26,5 @@ class FixedConstraint(BaseComponent):
                                  alpha=alpha,
                                  c=color)
 
-    def update(self, plt: Plotter) -> None:
+    def update(self, plt: Plotter, idx: Optional[int] = None) -> None:
         pass
