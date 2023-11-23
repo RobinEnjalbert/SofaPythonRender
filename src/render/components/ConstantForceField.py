@@ -15,15 +15,16 @@ class ConstantForceField(BaseComponent):
         # Access Data fields
         context = {key.split('<')[0]: value for key, value in context.items()}
         self.attached_MO = context['MechanicalObject']
-        start_position = self.attached_MO.position.value[self.sofa_object.indices.value]
-        scale = self.sofa_object.showArrowSize.value
-        end_position = start_position + self.sofa_object.forces.value * scale
+        positions = self.attached_MO.position.value[self.sofa_object.indices.value]
+        forces = self.sofa_object.forces.value
+        self.store(positions=positions.copy(), forces=forces.copy())
+        end_positions = positions + forces * self.sofa_object.showArrowSize.value
         color = STYLES[self.category]['color']
         alpha = STYLES[self.category]['alpha']
 
         # Create the Vedo Actor
-        self.vedo_object = Arrows(start_pts=start_position,
-                                  end_pts=end_position,
+        self.vedo_object = Arrows(start_pts=positions,
+                                  end_pts=end_positions,
                                   c=color,
                                   alpha=alpha)
 
@@ -33,7 +34,7 @@ class ConstantForceField(BaseComponent):
         if idx is None:
             positions = self.attached_MO.position.value[self.sofa_object.indices.value]
             forces = self.sofa_object.forces.value
-            self.store(positions=positions, forces=forces)
+            self.store(positions=positions.copy(), forces=forces.copy())
         else:
             frame = self.get_item(idx=idx)
             positions = frame['positions']

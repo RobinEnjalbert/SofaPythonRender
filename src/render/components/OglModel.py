@@ -19,6 +19,7 @@ class OglModel(BaseComponent):
         colors = self.sofa_object.material.value.split('Diffuse')[1].split('Ambient')[0].split(' ')[2:-1]
         texture = self.sofa_object.texturename.value
         texcoords = self.sofa_object.texcoords.value
+        self.store(positions=positions.copy())
 
         # Create the Vedo Actor
         self.vedo_object = Mesh(inputobj=[positions, triangles + quads],

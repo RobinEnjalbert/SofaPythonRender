@@ -25,7 +25,7 @@ class BaseComponent:
                 self.memory[key].append(value)
 
     def reset_memory(self) -> None:
-        self.memory = {key: [] for key in self.memory.keys()}
+        self.memory = {key: [value[0]] for key, value in self.memory.items()}
 
     def get_item(self, idx: int) -> Dict[str, ndarray]:
         return {key: value[idx] for key, value in self.memory.items()}

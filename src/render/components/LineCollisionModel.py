@@ -17,6 +17,7 @@ class LineCollisionModel(BaseComponent):
         self.attached_MO = context['MechanicalObject']
         positions = self.attached_MO.position.value
         edges = self.sofa_object.topology.getLinkedBase().edges.value
+        self.store(positions=positions.copy())
         color = STYLES[self.category]['color']
         alpha = STYLES[self.category]['alpha']
 

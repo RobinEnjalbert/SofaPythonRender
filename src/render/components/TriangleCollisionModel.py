@@ -17,6 +17,7 @@ class TriangleCollisionModel(BaseComponent):
         self.attached_MO = context['MechanicalObject']
         positions = self.attached_MO.position.value
         triangles = self.sofa_object.topology.getLinkedBase().triangles.value
+        self.store(positions=positions.copy())
         color = STYLES[self.category]['color']
         alpha = STYLES[self.category]['alpha']
 

@@ -16,6 +16,7 @@ class PointCollisionModel(BaseComponent):
         context = {key.split('<')[0]: value for key, value in context.items()}
         self.attached_MO = context['MechanicalObject']
         positions = self.attached_MO.position.value
+        self.store(positions=positions.copy())
         color = STYLES[self.category]['color']
         alpha = STYLES[self.category]['alpha']
 
