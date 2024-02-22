@@ -107,11 +107,6 @@ class VedoPlayer(Plotter):
         self.render()
 
     def __pause(self):
-        """
-
-        :return:
-        """
-
         self.__animate = False
         if self.timer_id is not None:
             self.timer_callback(action='destroy', timer_id=self.timer_id)

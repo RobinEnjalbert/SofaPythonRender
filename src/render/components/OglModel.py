@@ -17,14 +17,15 @@ class OglModel(BaseComponent):
         triangles = list(self.sofa_object.triangles.value)
         quads = list(self.sofa_object.quads.value)
         colors = self.sofa_object.material.value.split('Diffuse')[1].split('Ambient')[0].split(' ')[2:-1]
+        alpha = max(0.1, float(colors[-1])) if self.sofa_object.enable.value else 0.
         texture = self.sofa_object.texturename.value
         texcoords = self.sofa_object.texcoords.value
-        self.store(positions=positions.copy())
+        self.store(positions=positions.copy(), alpha=alpha)
 
         # Create the Vedo Actor
         self.vedo_object = Mesh(inputobj=[positions, triangles + quads],
                                 c=[float(c) for c in colors[:-1]],
-                                alpha=max(0.1, float(colors[-1])))
+                                alpha=alpha)
         if texture != '':
             self.vedo_object.texture(texture, tcoords=texcoords)
 
@@ -33,9 +34,14 @@ class OglModel(BaseComponent):
         # Access Data fields
         if idx is None:
             positions = self.sofa_object.position.value
-            self.store(positions=positions.copy())
+            colors = self.sofa_object.material.value.split('Diffuse')[1].split('Ambient')[0].split(' ')[2:-1]
+            alpha = max(0.1, float(colors[-1])) if self.sofa_object.enable.value else 0.
+            self.store(positions=positions.copy(), alpha=alpha)
         else:
-            positions = self.get_item(idx=idx)['positions']
+            data = self.get_item(idx=idx)
+            positions = data['positions']
+            alpha = data['alpha']
 
         # Update the Vedo Actor
         self.vedo_object.vertices = positions
+        self.vedo_object.alpha(alpha)

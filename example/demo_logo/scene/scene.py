@@ -8,16 +8,6 @@ def get_file(filename: str):
     return join(dirname(__file__), data_dir, *filename.split('/'))
 
 
-def get_plugin_list():
-    with open(get_file('plugins.txt'), 'r') as file:
-        plugins = []
-        for plugin in file.readlines():
-            if plugin != '\n':
-                plugin = plugin[:-1] if plugin[-1] == '\n' else plugin
-                plugins.append(plugin)
-    return plugins
-
-
 class Scene(Sofa.Core.Controller):
 
     def __init__(self, root: Sofa.Core.Node, *args, **kwargs):
@@ -29,12 +19,16 @@ class Scene(Sofa.Core.Controller):
 
     def create_graph(self):
 
+        # Root
         self.root.dt.value = 0.1
-        self.root.addObject('RequiredPlugin', pluginName=get_plugin_list())
+        with open(get_file('plugins.txt'), 'r') as file:
+            required_plugins = [plugin[:-1] if plugin.endswith('\n') else plugin for plugin in file.readlines()
+                                if plugin != '\n']
+        self.root.addObject('RequiredPlugin', pluginName=required_plugins)
         self.root.addObject('VisualStyle', displayFlags='showVisualModels showBehaviorModels showForceFields')
         self.root.addObject('DefaultAnimationLoop')
         self.root.addObject('GenericConstraintSolver', maxIterations=10, tolerance=1e-3)
-        self.root.addObject('DefaultPipeline')
+        self.root.addObject('CollisionPipeline')
         self.root.addObject('BruteForceBroadPhase')
         self.root.addObject('BVHNarrowPhase')
         self.root.addObject('DiscreteIntersection')
@@ -77,7 +71,7 @@ class Scene(Sofa.Core.Controller):
         # Create ForceFields
         for i, cluster in enumerate(clusters):
             self.root.logo.forces.addObject('ConstantForceField', name=f'cff_{i}', indices=cluster,
-                                            force=np.random.choice([-0.5, 0.5], (3,)), showArrowSize=1)
+                                            forces=np.random.choice([-0.5, 0.5], (3,)), showArrowSize=1)
 
         self.root.logo.addChild('collision')
         self.root.logo.collision.addObject('TriangleSetTopologyContainer', name='topology')
