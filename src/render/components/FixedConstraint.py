@@ -1,22 +1,30 @@
-from typing import Dict, Optional
-import Sofa
+from typing import Optional
 from vedo import Glyph, Box, Plotter
 
-from SofaRender.render.components.Base import BaseComponent
+from SofaRender.render.components.Base import BaseConfig, BaseComponent
+from SofaRender.render.remote.vedo_memory import VedoMemory
 from SofaRender.render.settings import STYLES
 
 
-class FixedConstraint(BaseComponent):
+class Config(BaseConfig):
+
+    def __init__(self):
+        super().__init__()
+        self.add_object_fields(field_names=['indices'])
+        self.add_linked_fields(link_name='state', field_names=['position'])
+
+
+class Component(BaseComponent):
     category: str = 'behavior_models'
 
-    def __init__(self, sofa_object: Sofa.Core.Object, context: Dict[str, Sofa.Core.Object]):
-        BaseComponent.__init__(self, sofa_object, context)
+    def __init__(self, data: VedoMemory):
+        BaseComponent.__init__(self, data=data)
+
+    def create(self) -> None:
 
         # Access Data fields
-        context = {key.split('<')[0]: value for key, value in context.items()}
-        self.attached_MO = context['MechanicalObject']
-        positions = self.attached_MO.position.value
-        indices = self.sofa_object.indices.value
+        positions = self.data.get_data(link_name='state', field_name='position')
+        indices = self.data.get_data(field_name='indices')
         color = STYLES[self.category]['color']
         alpha = STYLES[self.category]['alpha']
 

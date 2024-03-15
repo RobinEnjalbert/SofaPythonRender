@@ -16,6 +16,7 @@ class SceneFactory:
                                                 'behavior_models': False,
                                                 'force_fields': False}
         self.__models: Dict[str, List[BaseComponent]] = {}
+        self.create_models()
 
     def create_models(self):
 

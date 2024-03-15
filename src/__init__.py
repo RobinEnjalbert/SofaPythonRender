@@ -1,2 +1,2 @@
-from SofaRender.vedo_player import VedoPlayer
-from SofaRender.vedo_viewer import VedoViewer
+from SofaRender.viewer import Viewer
+from SofaRender.new_viewer import NewViewer

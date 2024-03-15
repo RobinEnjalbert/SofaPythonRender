@@ -1,23 +1,31 @@
-from typing import Dict, Optional
-import Sofa
+from typing import Optional
 from vedo import Mesh, Plotter
 
-from SofaRender.render.components.Base import BaseComponent
+from SofaRender.render.components.Base import BaseConfig, BaseComponent
+from SofaRender.render.remote.vedo_memory import VedoMemory
 from SofaRender.render.settings import STYLES
 
 
-class TriangleCollisionModel(BaseComponent):
+class Config(BaseConfig):
+
+    def __init__(self):
+        super().__init__()
+        self.add_linked_fields(link_name='state', field_names=['position'])
+        self.add_linked_fields(link_name='topology', field_names=['triangles'])
+
+
+class Component(BaseComponent):
     category: str = 'collision_models'
 
-    def __init__(self, sofa_object: Sofa.Core.Object, context: Dict[str, Sofa.Core.Object]):
-        BaseComponent.__init__(self, sofa_object, context)
+    def __init__(self, data: VedoMemory):
+        BaseComponent.__init__(self, data=data)
+
+    def create(self) -> None:
 
         # Access Data fields
-        context = {key.split('<')[0]: value for key, value in context.items()}
-        self.attached_MO = context['MechanicalObject']
-        positions = self.attached_MO.position.value
-        triangles = self.sofa_object.topology.getLinkedBase().triangles.value
-        self.store(positions=positions.copy())
+        positions = self.data.get_data(link_name='state', field_name='position')
+        triangles = self.data.get_data(link_name='topology', field_name='triangles')
+        self.store(positions=positions)
         color = STYLES[self.category]['color']
         alpha = STYLES[self.category]['alpha']
 

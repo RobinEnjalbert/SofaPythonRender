@@ -1,5 +1,6 @@
-import Sofa
+from Sofa.Core import Node
 import Sofa.Gui
+from os import listdir, remove
 
 from scene import Scene
 
@@ -9,7 +10,8 @@ def createScene(node):
 
 
 if __name__ == '__main__':
-    root = Sofa.Core.Node('root')
+
+    root = Node('root')
     createScene(node=root)
     Sofa.Simulation.init(root)
     Sofa.Gui.GUIManager.Init(program_name="main", gui_name="qglviewer")
@@ -17,3 +19,6 @@ if __name__ == '__main__':
     Sofa.Gui.GUIManager.SetDimension(1200, 900)
     Sofa.Gui.GUIManager.MainLoop(root)
     Sofa.Gui.GUIManager.closeGUI()
+
+    for file in [f for f in listdir() if f.endswith('.ini') or f.endswith('.log')]:
+        remove(file)

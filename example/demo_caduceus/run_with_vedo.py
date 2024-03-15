@@ -1,6 +1,6 @@
 import Sofa
 
-from SofaRender import VedoPlayer
+from SofaRender import Viewer
 from scene import Scene
 
 if __name__ == '__main__':
@@ -9,12 +9,28 @@ if __name__ == '__main__':
     scene = root.addObject(Scene(root=root))
     Sofa.Simulation.init(root)
 
-    def step_function():
+    def fnc():
+        while True:
+            if scene.idx_step == 100:
+                Sofa.Simulation.reset(root)
+                scene.idx_step = 0
+            else:
+                Sofa.Simulation.animate(root, root.dt.value)
+
+
+    def step():
         if scene.idx_step == 100:
             Sofa.Simulation.reset(root)
             scene.idx_step = 0
         else:
             Sofa.Simulation.animate(root, root.dt.value)
 
-    plt = VedoPlayer(root_node=root, step_function=step_function)
-    plt.show(axes=4, title="SOFA with Vedo").close()
+    # import threading
+    # t = threading.Thread(target=fnc)
+    # t.start()
+    # print('DONE')
+    # t.join()
+
+    plt = Viewer(root_node=root)
+    # scene.init_viewer(plt)
+    plt.show(axes=4, title="SOFA with Vedo")

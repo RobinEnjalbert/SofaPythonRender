@@ -1,18 +1,36 @@
-from typing import Optional, Dict
-import Sofa
-from vedo import Points, Plotter
+from typing import Optional, Dict, List
+from vedo import Plotter, Points
 from numpy import ndarray
+
+from SofaRender.render.remote.vedo_memory import VedoMemory
+
+
+class BaseConfig:
+
+    def __init__(self):
+        self.object_fields: List[str] = []
+        self.linked_fields: Dict[str, List[str]] = {}
+
+    def add_object_fields(self, field_names: List[str]):
+
+        self.object_fields += field_names
+
+    def add_linked_fields(self, link_name: str, field_names: List[str]):
+
+        self.linked_fields[link_name] = field_names
 
 
 class BaseComponent:
     category: str = ''
 
-    def __init__(self, sofa_object: Sofa.Core.Object, context: Dict[str, Sofa.Core.Object]):
+    def __init__(self, data: VedoMemory):
 
-        self.sofa_object: Sofa.Core.Object = sofa_object
+        self.data = data
+        self.memory: Dict[str, ndarray] = {}
         self.vedo_object: Optional[Points] = None
 
-        self.memory: Dict[str, ndarray] = {}
+    def create(self) -> None:
+        raise NotImplementedError
 
     def update(self, plt: Plotter, idx: Optional[int] = None) -> None:
         raise NotImplementedError
