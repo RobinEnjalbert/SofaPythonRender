@@ -99,9 +99,10 @@ class SofaMemory:
     def update(self):
 
         for field_name in self.__data.keys():
+            self.__data[field_name][1][...] = False
             data = self.__data_fields[field_name].value
             data = data if isinstance(data, ndarray) else array(data)
-            if (data[...] == self.__data[field_name][0]).all():
+            if not (data[...] == self.__data[field_name][0]).all():
                 self.__data[field_name][0][...] = data[...]
                 self.__data[field_name][1][...] = True
 

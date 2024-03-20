@@ -40,7 +40,14 @@ class VedoMemory:
         link_name = 'self' if link_name is None else link_name
         if f'{link_name}.{field_name}' not in self.__data:
             return None
-        return self.__data[f'{link_name}.{field_name}'][0]
+        return self.__data[f'{link_name}.{field_name}'][0].copy()
+
+    def update_data(self, field_name: str, link_name: Optional[str] = None) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+
+        link_name = 'self' if link_name is None else link_name
+        if f'{link_name}.{field_name}' not in self.__data:
+            return None, None
+        return self.__data[f'{link_name}.{field_name}'][0].copy(), self.__data[f'{link_name}.{field_name}'][1].copy()
 
     def close(self):
 

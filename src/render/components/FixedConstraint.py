@@ -1,5 +1,5 @@
 from typing import Optional
-from vedo import Glyph, Box, Plotter
+from vedo import Glyph, Box
 
 from SofaRender.render.components.Base import BaseConfig, BaseComponent
 from SofaRender.render.remote.vedo_memory import VedoMemory
@@ -25,14 +25,17 @@ class Component(BaseComponent):
         # Access Data fields
         positions = self.data.get_data(link_name='state', field_name='position')
         indices = self.data.get_data(field_name='indices')
-        color = STYLES[self.category]['color']
-        alpha = STYLES[self.category]['alpha']
 
         # Create the Vedo Actor
         self.vedo_object = Glyph(mesh=positions[indices],
                                  glyph=Box(size=[0.15]*3),
-                                 alpha=alpha,
-                                 c=color)
+                                 alpha=STYLES[self.category]['alpha'],
+                                 c=STYLES[self.category]['color'])
 
-    def update(self, plt: Plotter, idx: Optional[int] = None) -> None:
+    def update(self, idx: Optional[int] = None) -> None:
+
+        pass
+
+    def read_memory(self) -> None:
+
         pass

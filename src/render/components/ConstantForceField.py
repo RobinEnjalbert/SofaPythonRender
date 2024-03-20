@@ -1,5 +1,5 @@
 from typing import Optional
-from vedo import Arrows, Plotter
+from vedo import Arrows, plotter_instance
 
 from SofaRender.render.components.Base import BaseConfig, BaseComponent
 from SofaRender.render.remote.vedo_memory import VedoMemory
@@ -26,36 +26,44 @@ class Component(BaseComponent):
         positions = self.data.get_data(link_name='state', field_name='position')
         positions = positions[self.data.get_data(field_name='indices')]
         forces = self.data.get_data(field_name='forces')
-        self.store(positions=positions, forces=forces)
-        end_positions = positions + forces * self.data.get_data(field_name='showArrowSize')
-        color = STYLES[self.category]['color']
-        alpha = STYLES[self.category]['alpha']
+        size = self.data.get_data(field_name='showArrowSize')
+
+        # Store data
+        self.store(positions=positions, forces=forces, size=size)
+        self.dirty_flags = {'positions': False, 'indices': False, 'forces': False, 'size': False}
 
         # Create the Vedo Actor
         self.vedo_object = Arrows(start_pts=positions,
-                                  end_pts=end_positions,
-                                  c=color,
-                                  alpha=alpha)
+                                  end_pts=positions + forces * size,
+                                  c=STYLES[self.category]['color'],
+                                  alpha=STYLES[self.category]['alpha'])
 
-    def update(self, plt: Plotter, idx: Optional[int] = None) -> None:
+    def update(self, idx: Optional[int] = None) -> None:
 
-        # Access Data fields
-        if idx is None:
-            positions = self.attached_MO.position.value[self.sofa_object.indices.value]
-            forces = self.sofa_object.forces.value
-            self.store(positions=positions.copy(), forces=forces.copy())
-        else:
-            frame = self.get_item(idx=idx)
-            positions = frame['positions']
-            forces = frame['forces']
+        pass
 
-        # Update the Vedo Actor
-        plt.remove(self.vedo_object)
-        end_positions = positions + forces * self.sofa_object.showArrowSize.value
-        color = STYLES[self.category]['color']
-        alpha = STYLES[self.category]['alpha']
-        self.vedo_object = Arrows(start_pts=positions,
-                                  end_pts=end_positions,
-                                  c=color,
-                                  alpha=alpha)
-        plt.add(self.vedo_object)
+        # if True in self.dirty_flags.values():
+        #
+        #     # Access Data fields
+        #     frame = self.get_item(idx=idx)
+        #     positions, forces, size = frame['positions'], frame['forces'], frame['size']
+        #
+        #     # Update the Vedo Actor
+        #     # Todo: see how to update Arrows instead of remove/add
+        #     plotter_instance.remove(self.vedo_object)
+        #     self.vedo_object = Arrows(start_pts=positions,
+        #                               end_pts=positions + forces * size,
+        #                               c=STYLES[self.category]['color'],
+        #                               alpha=STYLES[self.category]['alpha'])
+        #     plotter_instance.add(self.vedo_object)
+
+    def read_memory(self) -> None:
+
+        pass
+
+        # positions, dirty_p = self.data.update_data(link_name='state', field_name='position')
+        # indices, dirty_i = self.data.update_data(field_name='indices')
+        # forces, dirty_f = self.data.update_data(field_name='forces')
+        # size, dirty_s = self.data.update_data(field_name='showArrowSize')
+        # self.store(positions=positions[indices], forces=forces, size=size)
+        # self.dirty_flags = {'positions': dirty_p, 'indices': dirty_i, 'forces': dirty_f, 'size': dirty_s}

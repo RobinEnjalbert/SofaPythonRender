@@ -19,7 +19,7 @@ if __name__ == '__main__':
     import time
     start = time.time()
     print('start')
-    for _ in range(1000):
+    for _ in range(100):
         Sofa.Simulation.animate(root, root.dt.value)
         viewer.render()
     print((time.time() - start) / 1000)

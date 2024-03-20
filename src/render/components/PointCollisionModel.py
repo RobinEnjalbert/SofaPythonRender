@@ -1,5 +1,5 @@
 from typing import Optional
-from vedo import Points, Plotter
+from vedo import Points
 
 from SofaRender.render.components.Base import BaseConfig, BaseComponent
 from SofaRender.render.remote.vedo_memory import VedoMemory
@@ -23,24 +23,34 @@ class Component(BaseComponent):
 
         # Access Data fields
         positions = self.data.get_data(link_name='state', field_name='position')
+
+        # Store data
         self.store(positions=positions)
-        color = STYLES[self.category]['color']
-        alpha = STYLES[self.category]['alpha']
+        self.dirty_flags = {'positions': False}
 
         # Create the Vedo Actor
         self.vedo_object = Points(inputobj=positions,
                                   r=7,
-                                  c=color,
-                                  alpha=alpha)
+                                  c=STYLES[self.category]['color'],
+                                  alpha=STYLES[self.category]['alpha'])
 
-    def update(self, plt: Plotter, idx: Optional[int] = None) -> None:
+    def update(self, idx: Optional[int] = None) -> None:
 
-        # Access Data fields
-        if idx is None:
-            positions = self.attached_MO.position.value
-            self.store(positions=positions.copy())
-        else:
-            positions = self.get_item(idx=idx)['positions']
+        pass
 
-        # Update the Vedo Actor
-        self.vedo_object.vertices = positions
+        # if self.dirty_flags['positions']:
+        #
+        #     # Access Data fields
+        #     positions = self.get_item(idx=idx)['positions']
+        #
+        #     # Update the Vedo Actor
+        #     self.vedo_object.vertices = positions
+
+    def read_memory(self) -> None:
+
+        pass
+
+        # positions, dirty_p = self.data.update_data(link_name='state', field_name='position')
+        # self.store(positions=positions)
+        # self.dirty_flags = {'positions': dirty_p}
+

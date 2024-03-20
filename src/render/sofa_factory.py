@@ -2,6 +2,7 @@ from typing import List, Optional
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 from threading import Thread
 import Sofa
+import time
 
 from SofaRender.graph import SofaGraph
 from SofaRender.render.sofa_memory import SofaMemory
@@ -68,8 +69,8 @@ class SofaFactory:
 
         # Update buffers
         # Todo
-        import time
-        start = time.time()
+        # import time
+        # start = time.time()
         for object_memory in self.object_memories:
             object_memory.update()
         # threads = []
@@ -84,7 +85,8 @@ class SofaFactory:
         # Launch reading access for the client
         self.__client.send(b'updt')
         # Might be necessary to synchronize buffer read/write access
-        # self.__client.recv(4)
+        self.__client.recv(4)
+        # time.sleep(0.002)
 
     def close(self):
 

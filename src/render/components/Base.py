@@ -27,12 +27,16 @@ class BaseComponent:
 
         self.data = data
         self.memory: Dict[str, ndarray] = {}
+        self.dirty_flags: Dict[str, bool] = {}
         self.vedo_object: Optional[Points] = None
 
     def create(self) -> None:
         raise NotImplementedError
 
-    def update(self, plt: Plotter, idx: Optional[int] = None) -> None:
+    def update(self, idx: Optional[int]) -> None:
+        raise NotImplementedError
+
+    def read_memory(self) -> None:
         raise NotImplementedError
 
     def store(self, **kwargs) -> None:

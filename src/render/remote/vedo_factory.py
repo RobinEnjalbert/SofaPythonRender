@@ -2,7 +2,7 @@ from typing import List, Optional
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 from threading import Thread
 from multiprocessing import Pool, cpu_count
-from vedo import Plotter, Points
+from vedo import Points, Plotter
 
 from SofaRender.render.remote.vedo_memory import VedoMemory
 from SofaRender.render.components import COMPONENTS, BaseComponent
@@ -11,7 +11,7 @@ from SofaRender.render.utils import fix_memory_leak
 
 class VedoFactory:
 
-    def __init__(self, port: int):
+    def __init__(self, port: int, plt: Plotter):
 
         fix_memory_leak()  # CPython issue: https://github.com/python/cpython/issues/82300
 
@@ -47,26 +47,45 @@ class VedoFactory:
         thread = Thread(target=self.__communicate)
         thread.start()
 
+        self.busy = False
+        self.plt = plt
+        self.step_idx = 0
+
     def __communicate(self):
 
         while (cmd := self.server.recv(4)) != b'done':
             if cmd == b'updt':
                 self.update()
                 # Might be necessary to synchronize buffer read/write access
-                # self.server.send(b'done')
+                self.server.send(b'done')
 
         self.close()
 
     def update(self):
-        pass
+
+        threads = []
+        import time
+        start = time.time()
+        for component in self.components:
+            component.read_memory()
+
+        #     threads.append(Thread(target=component.read_memory))
+        # for t in threads:
+        #     t.start()
+        # for t in threads:
+        #     t.join()
+        print("reading time", time.time() - start)
+        self.step_idx += 1
+
+    def update_models(self, idx: int):
+
+        threads = []
+        for component in self.components:
+            component.update(idx=idx)
 
     def get_objects(self) -> List[Points]:
 
         return [component.vedo_object for component in self.components]
-
-    def update_objects(self, plt: Plotter, idx: Optional[int] = None) -> None:
-
-        pass
 
     def close(self):
 
