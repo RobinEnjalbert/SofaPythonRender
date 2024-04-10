@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 import numpy as np
 from socket import socket
 from multiprocessing.shared_memory import SharedMemory
@@ -35,19 +35,11 @@ class VedoMemory:
             self.__data[field_name] = (np.ndarray(shape=shape, dtype=dtype, buffer=data_sm.buf),
                                        np.ndarray(shape=flag.shape, dtype=flag.dtype, buffer=dirty_sm.buf))
 
-    def get_data(self, field_name: str, link_name: Optional[str] = None) -> Optional[np.ndarray]:
+    def get_data(self, field_name: str, link_name: str = 'self') -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
 
-        link_name = 'self' if link_name is None else link_name
-        if f'{link_name}.{field_name}' not in self.__data:
-            return None
-        return self.__data[f'{link_name}.{field_name}'][0].copy()
-
-    def update_data(self, field_name: str, link_name: Optional[str] = None) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
-
-        link_name = 'self' if link_name is None else link_name
         if f'{link_name}.{field_name}' not in self.__data:
             return None, None
-        return self.__data[f'{link_name}.{field_name}'][0].copy(), self.__data[f'{link_name}.{field_name}'][1].copy()
+        return self.__data[f'{link_name}.{field_name}']
 
     def close(self):
 

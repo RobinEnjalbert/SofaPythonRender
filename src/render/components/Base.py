@@ -26,7 +26,6 @@ class BaseComponent:
     def __init__(self, data: VedoMemory):
 
         self.data = data
-        self.memory: Dict[str, ndarray] = {}
         self.dirty_flags: Dict[str, bool] = {}
         self.vedo_object: Optional[Points] = None
 
@@ -35,19 +34,3 @@ class BaseComponent:
 
     def update(self, idx: Optional[int]) -> None:
         raise NotImplementedError
-
-    def read_memory(self) -> None:
-        raise NotImplementedError
-
-    def store(self, **kwargs) -> None:
-        if len(self.memory) == 0:
-            self.memory = {key: [value] for key, value in kwargs.items()}
-        else:
-            for key, value in kwargs.items():
-                self.memory[key].append(value)
-
-    def reset_memory(self) -> None:
-        self.memory = {key: [value[0]] for key, value in self.memory.items()}
-
-    def get_item(self, idx: int) -> Dict[str, ndarray]:
-        return {key: value[idx] for key, value in self.memory.items()}

@@ -1,6 +1,5 @@
 from os.path import join, dirname
-from vedo import Plotter, Cube
-import numpy as np
+from vedo import Plotter
 
 from SofaRender.render.remote.vedo_factory import VedoFactory
 
@@ -13,7 +12,9 @@ ONE_FORWARD_SYMBOL = " \u29D0 "
 
 class VedoViewer(Plotter):
 
-    def __init__(self, port_nb: int):
+    def __init__(self,
+                 port_nb: int,
+                 animation_player: bool):
 
         super().__init__(bg=join(dirname(__file__), 'back.png'), interactive=True)
 
@@ -41,4 +42,5 @@ class VedoViewer(Plotter):
 if __name__ == '__main__':
 
     from sys import argv
-    VedoViewer(port_nb=int(argv[1]))
+    VedoViewer(port_nb=int(argv[1]),
+               animation_player=argv[2] == 'True')

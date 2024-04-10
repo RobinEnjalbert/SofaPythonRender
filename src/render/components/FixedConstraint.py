@@ -23,8 +23,8 @@ class Component(BaseComponent):
     def create(self) -> None:
 
         # Access Data fields
-        positions = self.data.get_data(link_name='state', field_name='position')
-        indices = self.data.get_data(field_name='indices')
+        positions = self.data.get_data(link_name='state', field_name='position')[0]
+        indices = self.data.get_data(field_name='indices')[0]
 
         # Create the Vedo Actor
         self.vedo_object = Glyph(mesh=positions[indices],
@@ -36,6 +36,6 @@ class Component(BaseComponent):
 
         pass
 
-    def read_memory(self) -> None:
-
-        pass
+    # def read_memory(self) -> None:
+    #
+    #     pass

@@ -23,12 +23,8 @@ class Component(BaseComponent):
     def create(self) -> None:
 
         # Access Data fields
-        positions = self.data.get_data(link_name='state', field_name='position')
-        edges = self.data.get_data(link_name='topology', field_name='edges')
-
-        # Store data
-        self.store(positions=positions)
-        self.dirty_flags = {'positions': False}
+        positions = self.data.get_data(link_name='state', field_name='position')[0]
+        edges = self.data.get_data(link_name='topology', field_name='edges')[0]
 
         # Create the Vedo Actor
         self.vedo_object = Mesh(inputobj=[positions, edges],
@@ -37,20 +33,6 @@ class Component(BaseComponent):
 
     def update(self, idx: Optional[int] = None) -> None:
 
-        pass
-
-        # if self.dirty_flags['positions']:
-        #
-        #     # Access Data fields
-        #     positions = self.get_item(idx=idx)['positions']
-        #
-        #     # Update the Vedo Actor
-        #     self.vedo_object.vertices = positions
-
-    def read_memory(self) -> None:
-
-        pass
-
-        # positions, dirty_p = self.data.update_data(link_name='state', field_name='position')
-        # self.store(positions=positions)
-        # self.dirty_flags = {'positions': dirty_p}
+        position, dirty = self.data.get_data(link_name='state', field_name='position')
+        if dirty:
+            self.vedo_object.vertices = position

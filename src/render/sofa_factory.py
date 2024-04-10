@@ -68,25 +68,15 @@ class SofaFactory:
     def update(self):
 
         # Update buffers
-        # Todo
-        # import time
-        # start = time.time()
         for object_memory in self.object_memories:
             object_memory.update()
-        # threads = []
-        # for object_memory in self.object_memories:
-        #     t = Thread(target=object_memory.update)
-        #     threads.append(t)
-        #     t.start()
-        # for t in threads:
-        #     t.join()
-        # print('Update', time.time() - start)
 
         # Launch reading access for the client
         self.__client.send(b'updt')
+
         # Might be necessary to synchronize buffer read/write access
-        self.__client.recv(4)
-        # time.sleep(0.002)
+        # self.__client.recv(1)
+        time.sleep(0.005)
 
     def close(self):
 

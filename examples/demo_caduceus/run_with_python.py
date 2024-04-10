@@ -1,6 +1,6 @@
 import Sofa
 
-from SofaRender import NewViewer as Viewer
+from SofaRender import Viewer
 from scene import Scene
 
 if __name__ == '__main__':

@@ -23,13 +23,13 @@ class Component(BaseComponent):
     def create(self) -> None:
 
         # Access Data fields
-        positions = self.data.get_data(link_name='state', field_name='position')
-        positions = positions[self.data.get_data(field_name='indices')]
-        forces = self.data.get_data(field_name='forces')
-        size = self.data.get_data(field_name='showArrowSize')
+        positions = self.data.get_data(link_name='state', field_name='position')[0]
+        positions = positions[self.data.get_data(field_name='indices')[0]]
+        forces = self.data.get_data(field_name='forces')[0]
+        size = self.data.get_data(field_name='showArrowSize')[0]
 
         # Store data
-        self.store(positions=positions, forces=forces, size=size)
+        # self.store(positions=positions, forces=forces, size=size)
         self.dirty_flags = {'positions': False, 'indices': False, 'forces': False, 'size': False}
 
         # Create the Vedo Actor
