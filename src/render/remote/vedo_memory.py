@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 import numpy as np
 from socket import socket
 from multiprocessing.shared_memory import SharedMemory

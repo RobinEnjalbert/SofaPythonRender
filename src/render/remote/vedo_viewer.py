@@ -29,6 +29,8 @@ class VedoViewer(Plotter):
         # Update the background to have a SOFA-like look
         self.render()
         self.background_renderer.GetActiveCamera().Zoom(2)
+
+        self.factory.start()
         self.show(axes=4).close()
 
     def __callback(self, _):
