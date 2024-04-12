@@ -3,6 +3,8 @@ from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 from threading import Thread
 import Sofa
 import time
+from numpy import ndarray, array
+from multiprocessing.shared_memory import SharedMemory
 
 from SofaRender.graph import SofaGraph
 from SofaRender.render.sofa_memory import SofaMemory
@@ -13,13 +15,15 @@ class SofaFactory:
 
     def __init__(self,
                  root_node: Sofa.Core.Node,
-                 render_graph: bool):
+                 render_graph: bool,
+                 animation_player: bool):
 
         # fix_memory_leak()
 
         self.scene_graph = SofaGraph(root_node=root_node)
         self.object_memories: List[SofaMemory] = []
         self.__render_graph = render_graph
+        self.__animation_player = animation_player
         self.__display_flags = {'visual_models': True,
                                 'collision_model': False,
                                 'behavior_model': False,
@@ -27,6 +31,13 @@ class SofaFactory:
         self.__socket = socket(AF_INET, SOCK_STREAM)
         self.__socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.__client: Optional[socket] = None
+
+        self.sync = self.sync_animation if animation_player else lambda: time.sleep(0.002)
+
+        root_time = array([self.scene_graph.root.dt.value], dtype=float)
+        self.root_sm = SharedMemory(create=True, name='psm_root_node', size=root_time.nbytes)
+        self.root_time = ndarray(shape=root_time.shape, dtype=float, buffer=self.root_sm.buf)
+        self.root_time[0] = root_time[0]
 
     def init(self) -> int:
 
@@ -70,24 +81,27 @@ class SofaFactory:
         # Update buffers
         for object_memory in self.object_memories:
             object_memory.update()
+        self.root_time[0] = self.scene_graph.root.dt.value
 
         # Launch reading access for the client
         self.__client.send(b'updt')
+        self.sync()
 
-        # Might be necessary to synchronize buffer read/write access
-        # self.__client.recv(1)
-        time.sleep(0.005)
+    def sync_animation(self):
+
+        blocked = self.__client.recv(1) == b'0'
+        if blocked:
+            self.__client.recv(1)
 
     def close(self):
 
         self.__client.send(b'done')
         self.__client.recv(4)
+
         for memory in self.object_memories:
             memory.close()
+        self.root_sm.close()
+        self.root_sm.unlink()
+
         self.__client.send(b'done')
         self.__socket.close()
-
-
-
-
-

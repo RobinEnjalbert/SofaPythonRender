@@ -25,7 +25,7 @@ class Viewer:
         if not root_node.isInitialized():
             raise RuntimeError("You must call 'Sofa.Simulation.init(root_node)' before creating the Viewer.")
 
-        self.__factory = SofaFactory(root_node=root_node, render_graph=render_graph)
+        self.__factory = SofaFactory(root_node=root_node, render_graph=render_graph, animation_player=animation_player)
         self.__vedo_thread: Optional[threading.Thread] = None
         self.__animation_player = animation_player
 

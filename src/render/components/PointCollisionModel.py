@@ -30,8 +30,12 @@ class Component(BaseComponent):
                                   c=STYLES[self.category]['color'],
                                   alpha=STYLES[self.category]['alpha'])
 
-    def update(self, idx: Optional[int] = None) -> None:
+    def update(self) -> None:
 
         position, dirty = self.data.get_data(link_name='state', field_name='position')
         if dirty:
             self.vedo_object.vertices = position
+
+    def set_frame(self, idx: int) -> None:
+
+        self.vedo_object.vertices = self.data.get_frame(idx=idx, link_name='state', field_name='position')

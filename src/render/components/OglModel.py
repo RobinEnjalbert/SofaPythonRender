@@ -41,7 +41,7 @@ class Component(BaseComponent):
         if texture != '':
             self.vedo_object.texture(texture, tcoords=texcoords)
 
-    def update(self, idx: Optional[int] = None) -> None:
+    def update(self) -> None:
 
         positions, dirty = self.data.get_data(field_name='position')
         if dirty:
@@ -52,3 +52,7 @@ class Component(BaseComponent):
             colors = colors.item().split('Diffuse')[1].split('Ambient')[0].split(' ')[2:-1]
             alpha = max(0.1, float(colors[-1]))
             self.vedo_object.alpha(alpha)
+
+    def set_frame(self, idx: int) -> None:
+
+        self.vedo_object.vertices = self.data.get_frame(idx=idx, field_name='position')

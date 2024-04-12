@@ -9,6 +9,7 @@ class SofaGraph:
     def __init__(self, root_node: Sofa.Core.Node):
         self.graph = GraphDict()
         self.__explore_graph(root_node, 'root')
+        self.root = root_node
 
     def __explore_graph(self, node: Sofa.Core.Node, parent: str):
 

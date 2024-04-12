@@ -32,5 +32,8 @@ class BaseComponent:
     def create(self) -> None:
         raise NotImplementedError
 
-    def update(self, idx: Optional[int]) -> None:
+    def update(self) -> None:
+        raise NotImplementedError
+
+    def set_frame(self, idx: int) -> None:
         raise NotImplementedError

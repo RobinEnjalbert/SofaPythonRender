@@ -6,7 +6,7 @@ from multiprocessing.shared_memory import SharedMemory
 
 class VedoMemory:
 
-    def __init__(self, server: socket):
+    def __init__(self, server: socket, store_data: bool):
 
         # Receive the shared memories for display flag
         sm_name = server.recv(int.from_bytes(server.recv(2), 'big')).decode('utf-8')
@@ -35,11 +35,28 @@ class VedoMemory:
             self.__data[field_name] = (np.ndarray(shape=shape, dtype=dtype, buffer=data_sm.buf),
                                        np.ndarray(shape=flag.shape, dtype=flag.dtype, buffer=dirty_sm.buf))
 
-    def get_data(self, field_name: str, link_name: str = 'self') -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+        # Data storage for animation player
+        if store_data:
+            self.memory = {field_name: [] for field_name in self.__data.keys()}
+            self.get_data = self.__get_data_store
+        else:
+            self.get_data = self.__get_data
 
-        if f'{link_name}.{field_name}' not in self.__data:
-            return None, None
-        return self.__data[f'{link_name}.{field_name}']
+    def __get_data(self, field_name: str, link_name: str = 'self') -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+
+        return self.__data.get(f'{link_name}.{field_name}', (None, None))
+
+    def __get_data_store(self, field_name: str, link_name: str = 'self') -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+
+        data, dirty = self.__data.get(f'{link_name}.{field_name}', (None, None))
+        if data is not None:
+            self.memory[f'{link_name}.{field_name}'].append(np.array(data))
+        return data, dirty
+
+    def get_frame(self, idx: int, field_name: str, link_name: str = 'self') -> Optional[np.ndarray]:
+
+        data = self.memory.get(f'{link_name}.{field_name}', None)
+        return None if data is None else data[idx]
 
     def close(self):
 
